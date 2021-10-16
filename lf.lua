@@ -15,6 +15,7 @@ local options = {
   trim = true,                          -- trim trailing blanks
   ltrim = false,                        -- trim leading blanks
   xtrim = false,                        -- trim multiple blank lines
+  xxtrim = false,                       -- trim all blank lines
   force = false,                        -- force processing of skipped extensions
   bforce = false,                       -- force processing of binary files
   quiet = true,                         -- quiet mode shows only skipped
@@ -354,7 +355,7 @@ function do_file(filename)
     line = options.ltrim and line:ltrim() or line
     if options.xtrim and line:rtrim() == '' then
       if #ans > 0 and ans[#ans] <> '' then ans[#ans+1] = '' end
-    else
+    elseif line:rtrim() ~= '' or not options.xxtrim then
       ans[#ans+1] = line
     end
   end
@@ -419,6 +420,7 @@ Usage: LF [directory/][<filemask>] ... [option(s)]
        -notrim : do not trim trailing blanks (also -nt)
        -ltrim  : trim leading blanks (also -l)
        -xtrim  : trim multiple blank lines (also -x)
+       -xx     : same as -xtrim (-x) but leaves no blank lines at all
        -quiet  : quiet mode does not display 'Processing...' message (also -q)
        -verbose: display all processed files (also -v)                [default]
        -force  : force processing of forbidden extensions
@@ -436,6 +438,10 @@ for _,option in ipairs(arg) do
     options.trim = true
   elseif option == '-x' or option == '-xtrim' then
     options.xtrim = true
+    options.xxtrim = false
+  elseif option == '-xx' then
+    options.xxtrim = true
+    options.xtrim = false
   elseif option == '-l' or option == '-ltrim' then
     options.ltrim = true
   elseif option == '-nt' or option == '-notrim' then
